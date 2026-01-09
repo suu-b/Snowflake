@@ -31,6 +31,7 @@ def main():
   test_df = session.create_dataframe(incoming_rows, schema=['timestamp', 'value'])
   test_df.create_or_replace_temp_view('incoming_data')
   
+  # session.call Not supported for ML functions as of now
   session.sql("""
     call holmes!detect_anomalies(
     input_data => table(select * from incoming_data),
