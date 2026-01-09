@@ -1,2 +1,5 @@
 **/.env
 **/venv/
+
+# Ignore all raw datasets (except the ones in anomaly detection multi and univariate)
+**/*.csv 
