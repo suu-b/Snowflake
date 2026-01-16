@@ -17,7 +17,7 @@ def gen_data():
     allowed_key_3 = ['key_3_a', 'key_3_b', 'key_3_c']    
     
     start_date = '2024-01-16'
-    end_date = '2026-01-16'
+    end_date = '2027-01-16'
 
     as_of_dates = pd.date_range(start=start_date, end=end_date, freq='D').strftime('%Y-%m-%d').tolist()
     # logging.info(as_of_dates)
@@ -40,9 +40,20 @@ def gen_data():
     # Anomalies
     # logging.info(len(df))
     # Data length -> 19764
-    indexes = [100_00, 500, 200, 400,110_00]
+    # We want to add anomaly only to the last year and not first 2 years
+    last_year_start_index = (len(df) // 3) * 2
+    indexes = [
+        last_year_start_index + 1000, 
+        last_year_start_index + 3000, 
+        last_year_start_index + 5000, 
+        last_year_start_index + 7000, 
+        last_year_start_index + 9000
+    ]
+
     for i in indexes:
         df.iloc[i, df.columns.get_loc('value')] += 200
+        for i in indexes:
+            df.iloc[i, df.columns.get_loc('value')] += 200
     
     output = './data'
     os.makedirs(output, exist_ok=True)
