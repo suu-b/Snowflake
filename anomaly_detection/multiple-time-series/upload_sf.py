@@ -24,7 +24,7 @@ def main():
     session = Session.builder.configs(connection_parameters).create()  
     session.use_database('anomaly_detection')  
     
-    table_name = "M_SERIES"
+    table_name = "M_SERIES_v2"
     tables = session.sql(
         f"SHOW TABLES LIKE '{table_name}'"
     ).collect()

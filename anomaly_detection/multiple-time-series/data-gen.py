@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 import logging
-from pathlib import Path
 from itertools import product
+import random
 import os
 
 logging.basicConfig(
@@ -19,46 +19,45 @@ def gen_data():
     start_date = '2024-01-16'
     end_date = '2027-01-16'
 
-    as_of_dates = pd.date_range(start=start_date, end=end_date, freq='D').strftime('%Y-%m-%d').tolist()
+    as_of_dates = pd.date_range(start_date, end_date, freq='D')
     # logging.info(as_of_dates)
+    n_dates = len(as_of_dates)
+    last_year_start = (n_dates // 3) *2
         
-    # Data format
-    # as_of_date,key_1,key_2,key_3,value
-    # each row is uniquely identified by the combination of different values of the keys
-    
-    combinations = list(product(as_of_dates, allowed_key_1, allowed_key_2, allowed_key_3))
-    # logging.info(len(combinations))    
-    df = pd.DataFrame(combinations, columns=['as_of_date', 'key_1', 'key_2', 'key_3'])
-    # logging.info(df.head())
-    
-    # df['value'] = np.random.uniform(100, 1000, size=len(df)).round(2)
-    
     np.random.seed(42)
-    value = np.random.normal(loc=2345, scale=0.002, size=len(df))
-    df['value'] = value
+    random.seed(42)
     
-    # Anomalies
-    # logging.info(len(df))
-    # Data length -> 19764
-    # We want to add anomaly only to the last year and not first 2 years
-    last_year_start_index = (len(df) // 3) * 2
-    indexes = [
-        last_year_start_index + 1000, 
-        last_year_start_index + 3000, 
-        last_year_start_index + 5000, 
-        last_year_start_index + 7000, 
-        last_year_start_index + 9000
-    ]
-
-    for i in indexes:
-        df.iloc[i, df.columns.get_loc('value')] += 200
-        for i in indexes:
-            df.iloc[i, df.columns.get_loc('value')] += 200
+    rows = []
+    
+    for k1, k2, k3 in product(allowed_key_1,allowed_key_2,allowed_key_3):
+        base_value = random.randint(1000, 10000)
+        values = np.random.normal(loc=base_value, scale=0.002, size=n_dates)
+        
+        anomaly_idx = np.random.choice(
+            range(last_year_start, n_dates),
+            size = 5,
+            replace=False
+        )
+        
+        values[anomaly_idx] += 50
+        
+        for dt, val in zip(as_of_dates, values):
+            rows.append((dt, k1, k2, k3, val))
+            
+    df = pd.DataFrame(
+        rows,
+        columns=['as_of_date', 'key_1', 'key_2', 'key_3', 'value']
+    )
     
     output = './data'
     os.makedirs(output, exist_ok=True)
 
     df.to_csv('./data/data.csv', index=False)
+    # df.to_csv(
+    #     "./data/data.csv.zip",
+    #     index=False,
+    #     compression="zip"
+    # )
     
 def main():
     logging.info("Hey suu-b!")
@@ -67,6 +66,6 @@ def main():
     logging.info("Exiting...")
     
 if __name__ == '__main__':
-    gen_data()
+    main()
     
     
